@@ -129,14 +129,26 @@ RecentlyView.prototype.getProducts = function () {
       self.getLocalData().done(function (_products) {
         self.option.productIds = _products;
 
-        Products.getList(_products)
-          .done(function (_productsObject) {
-            self.setLog('Товары из апи: ', _productsObject);
-            dfd.resolve( _productsObject );
-          })
-          .fail(function (onFail) {
-            dfd.resolve( {} );
-          });
+        if (Products && Products.getList) {
+          Products.getList(_products)
+            .done(function (_productsObject) {
+              self.setLog('Товары из апи: ', _productsObject);
+              dfd.resolve( _productsObject );
+            })
+            .fail(function (onFail) {
+              dfd.resolve( {} );
+            });
+        }else{
+          $.post('/products_by_id/'+ _products.join(',') +'.json')
+            .done(function (_productsObject) {
+              self.setLog('Товары из апи: ', _productsObject);
+              dfd.resolve( _productsObject );
+            })
+            .fail(function (onFail) {
+              dfd.resolve( {} );
+            });
+        }
+
       }).fail(function () {
         // если хранилище пусто
         dfd.resolve( {} );
