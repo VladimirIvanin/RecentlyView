@@ -71,8 +71,17 @@ RecentlyView.prototype.init = function () {
           self.setLog('Из списка удален товар с id: ' + _id);
         }
 
+        var sortProducts = [];
+
+        for (var i = 0; i < self.option.productIds.length; i++) {
+          var _idProduct = self.option.productIds[i];
+          if (_products[_idProduct]) {
+            sortProducts.push( _products[_idProduct] );
+          }
+        }
+
         self.setLog('Вызов колбека succes');
-        self.option.succes(_products);
+        self.option.succes(sortProducts);
       });
     }
 
@@ -87,13 +96,16 @@ RecentlyView.prototype.init = function () {
 RecentlyView.prototype.getIds = function (_callback) {
   var self = this;
 
-  var data_params = self.option.data_selector.replace(/\[data-*\]*/g, '')
+  var data_params = self.option.data_selector.replace(/(?:\[data-*)*\]*/g, '')
 
   $(self.option.data_selector).each(function(index, el) {
     self.option.productIds.push( ( $(el).data(data_params) ).toString() );
   });
 
   self.setLocalData( self.unique(self.option.productIds) )
+
+  self.option.productIds = self.unique( self.option.productIds.reverse() );
+
 
 
   if (_callback) {
