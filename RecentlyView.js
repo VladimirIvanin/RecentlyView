@@ -144,6 +144,9 @@ RecentlyView.prototype.getProducts = function () {
         if (Products && Products.getList) {
           Products.getList(_products)
             .done(function (_productsObject) {
+              $.each(_productsObject, function(index, _product) {
+                self.convertProperties(_product);
+              });
               self.setLog('Товары из апи: ', _productsObject);
               dfd.resolve( _productsObject );
             })
@@ -153,6 +156,9 @@ RecentlyView.prototype.getProducts = function () {
         }else{
           $.post('/products_by_id/'+ _products.join(',') +'.json')
             .done(function (_productsObject) {
+              $.each(_productsObject, function(index, _product) {
+                self.convertProperties(_product);
+              });
               self.setLog('Товары из апи: ', _productsObject);
               dfd.resolve( _productsObject );
             })
@@ -212,6 +218,49 @@ RecentlyView.prototype.setLocalData = function (newLocals, _setCallback) {
     });
   }
 };
+
+// развертка параметров для товара
+RecentlyView.prototype.convertProperties = function (_product) {
+  _product.parameters = {};
+  _product.sale = null;
+
+  // Имя параметра: массив характеристик
+  $.each( _product.properties, function( index, property ){
+
+    $.each( _product.characteristics, function( index, characteristic ){
+      if (property.id === characteristic.property_id) {
+        var _characteristic = characteristic;
+        _characteristic.property_name = property.title;
+        _characteristic.property = {
+          backoffice: property.backoffice,
+          id: property.id,
+          is_hidden: property.is_hidden,
+          is_navigational: property.is_navigational,
+          permalink: property.permalink,
+          position: property.position,
+          title: property.title
+        };
+        (_product.parameters[ property.permalink ] || (_product.parameters[ property.permalink ] = [])).push(_characteristic);
+      }
+    });
+
+  });
+
+  // Скидка в процентах
+  if (_product.variants) {
+    $.each( _product.variants, function( index, variant ){
+      if (variant.old_price) {
+        var _percent = ((parseInt(variant.old_price) - parseInt(variant.price)) / parseInt(variant.old_price) * 100);
+        var _merge = Math.round(_percent);
+        if (_merge < 100) {
+          _product.sale = _merge;
+        }
+      }
+    });
+  }
+
+  return _product;
+}
 
 // Дебагер
 RecentlyView.prototype.setLog = function (_name, _variable) {
