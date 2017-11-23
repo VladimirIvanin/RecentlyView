@@ -11,6 +11,9 @@
  * clear_forage - очистить localforage при запуске
  * keyParameters - ключ в котором хранятся данные localforage
  *
+ * HTML/liquid
+ * <div data-recently-view="{{ product.id }}"></div>
+ *
   Пример вызова:
   var myRecentlyView = new RecentlyView({
    succes: function (_products) {
@@ -141,31 +144,19 @@ RecentlyView.prototype.getProducts = function () {
       self.getLocalData().done(function (_products) {
         self.option.productIds = _products;
 
-        if (Products && Products.getList) {
-          Products.getList(_products)
-            .done(function (_productsObject) {
-              $.each(_productsObject, function(index, _product) {
-                self.convertProperties(_product);
-              });
-              self.setLog('Товары из апи: ', _productsObject);
-              dfd.resolve( _productsObject );
-            })
-            .fail(function (onFail) {
-              dfd.resolve( {} );
+        $.post('/products_by_id/'+ _products.join(',') +'.json')
+          .done(function (data) {
+            var _productsArray = data.products;
+            var _productsObject = {};
+            $.each(_productsArray, function(index, _product) {
+              _productsObject[_product.id] = self.convertProperties(_product);
             });
-        }else{
-          $.post('/products_by_id/'+ _products.join(',') +'.json')
-            .done(function (_productsObject) {
-              $.each(_productsObject, function(index, _product) {
-                self.convertProperties(_product);
-              });
-              self.setLog('Товары из апи: ', _productsObject);
-              dfd.resolve( _productsObject );
-            })
-            .fail(function (onFail) {
-              dfd.resolve( {} );
-            });
-        }
+            self.setLog('Товары из апи: ', _productsObject);
+            dfd.resolve( _productsObject );
+          })
+          .fail(function (onFail) {
+            dfd.resolve( {} );
+          });
 
       }).fail(function () {
         // если хранилище пусто
