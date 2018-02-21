@@ -5,7 +5,7 @@
  * localforage (//cdnjs.cloudflare.com/ajax/libs/localforage/1.4.3/localforage.min.js)
  *
  * Параметры:
- * succes - колбек на получение данных
+ * success - колбек на получение данных
  * debug - выводит уведомления о процессах
  * use_forage - юзать localforage
  * clear_forage - очистить localforage при запуске
@@ -16,7 +16,7 @@
  *
   Пример вызова:
   var myRecentlyView = new RecentlyView({
-   succes: function (_products) {
+   success: function (_products) {
      console.log(_products);
    },
    debug: true
@@ -34,7 +34,7 @@ var RecentlyView = function (options) {
     del_current_id: true,
     productIds: [],
     keyParameters: 'recently_view',
-    succes: function () {}
+    success: function () {}
   }
 
   self.option = $.extend(DEFAULT_OPTIONS, options);
@@ -63,8 +63,8 @@ RecentlyView.prototype.init = function () {
   // получить товары
   self.getProducts().done(function (_products) {
     if (!self.option.del_current_id) {
-      self.setLog('Вызов колбека succes');
-      self.option.succes(_products);
+      self.setLog('Вызов колбека success');
+      self.option.success(_products);
       self.getIds();
 
     }else{
@@ -83,8 +83,8 @@ RecentlyView.prototype.init = function () {
           }
         }
 
-        self.setLog('Вызов колбека succes');
-        self.option.succes(sortProducts);
+        self.setLog('Вызов колбека success');
+        self.option.success(sortProducts);
       });
     }
 
