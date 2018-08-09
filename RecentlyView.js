@@ -143,7 +143,12 @@ RecentlyView.prototype.getProducts = function () {
       // пробуем забрать данные из хранилища
       self.getLocalData().done(function (_products) {
         self.option.productIds = _products;
-		if(_products.length && _products[0] != '') {
+        $.each(_products, function(index, el) {
+          if (el == 0) {
+            _products.splice(index, 1);
+          }
+		});
+		if(_products.length) {
         $.post('/products_by_id/'+ _products.join(',') +'.json')
           .done(function (data) {
             var _productsArray = data.products;
