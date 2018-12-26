@@ -3,12 +3,14 @@
  * Зависимости:
  * jQuery
  * localforage (//cdnjs.cloudflare.com/ajax/libs/localforage/1.4.3/localforage.min.js)
- *
+ * v0.2.0
  * Параметры:
  * success - колбек на получение данных
  * debug - выводит уведомления о процессах
  * use_forage - юзать localforage
  * clear_forage - очистить localforage при запуске
+ * del_current_id - удалять из списка текущий товар?
+ * reverse - развернуть массив товаров по добавлению в обратную сторону?
  * keyParameters - ключ в котором хранятся данные localforage
  *
  * HTML/liquid
@@ -32,6 +34,7 @@ var RecentlyView = function (options) {
     clear_forage: false,
     use_forage: true,
     del_current_id: true,
+    reverse: false,
     productIds: [],
     keyParameters: 'recently_view',
     success: function () {}
@@ -102,12 +105,17 @@ RecentlyView.prototype.getIds = function (_callback) {
   var data_params = self.option.data_selector.replace(/(?:\[data-*)*\]*/g, '')
 
   $(self.option.data_selector).each(function(index, el) {
-    self.option.productIds.push( ( $(el).data(data_params) ).toString() );
+    self.option.productIds.unshift( ( $(el).data(data_params) ).toString() );
   });
 
   self.setLocalData( self.unique(self.option.productIds) )
+  var resultIds = self.option.productIds;
 
-  self.option.productIds = self.unique( self.option.productIds.reverse() );
+  if (self.option.reverse) {
+    resultIds = resultIds.reverse();
+  }
+
+  self.option.productIds = self.unique( resultIds );
 
 
 
