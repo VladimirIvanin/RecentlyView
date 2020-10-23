@@ -107,6 +107,8 @@ RecentlyView.prototype.getIds = function (_callback) {
   $(self.option.data_selector).each(function(index, el) {
     self.option.productIds.unshift( ( $(el).data(data_params) ).toString() );
   });
+	
+  self.option.productIds.splice(20);
 
   self.setLocalData( self.unique(self.option.productIds) )
   var resultIds = self.option.productIds;
